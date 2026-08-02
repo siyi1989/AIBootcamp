@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  caas-legislation-app:
+    build: .
+    container_name: caas-legislation-app
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/app/data   # persist uploaded docs + FAISS index across restarts
+    restart: unless-stopped

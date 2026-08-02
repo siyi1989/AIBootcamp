@@ -1,0 +1,28 @@
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Generated data (keep the folders, not the contents)
+data/raw_docs/*
+!data/raw_docs/.gitkeep
+data/vector_store/*
+!data/vector_store/.gitkeep
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+data/feedback.csv
+data/fee_register.csv
