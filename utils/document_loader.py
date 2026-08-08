@@ -1,15 +1,18 @@
-from pathlib import Path
 import os
 import time
+from pathlib import Path
 
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+from dotenv import load_dotenv
+from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader, TextLoader
 from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-#from langchain_ollama import OllamaEmbeddings
 
-DATA_DIR = Path("data/raw_docs")
-INDEX_DIR = Path("data/vector_store")
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+DATA_DIR = BASE_DIR / "data/raw_docs"
+INDEX_DIR = BASE_DIR / "data/vector_store"
 
 LOADERS = {
     ".pdf": PyPDFLoader,
@@ -55,22 +58,12 @@ def load_all_documents():
     return docs
 
 
-#def get_embeddings():
-    return GoogleGenerativeAIEmbeddings(
-        model="models/gemini-embedding-001",
-        google_api_key=os.getenv("GOOGLE_API_KEY"),
-    )
-
-import os
-
 def get_embeddings():
-   # ollama_host = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    #return OllamaEmbeddings(model="nomic-embed-text", base_url=ollama_host)
-    
-    return GoogleGenerativeAIEmbeddings(
-        model="models/gemini-embedding-001",
-        google_api_key=os.getenv("GOOGLE_API_KEY"),
-    )
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is not set. Configure it before building or loading the vector store.")
+
+    return OpenAIEmbeddings(model="text-embedding-3-small", api_key=api_key)
 
 def build_vector_store(progress_callback=None):
     """(Re)build the FAISS index from every supported file in data/raw_docs.
