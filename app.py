@@ -7,10 +7,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
-# If the user only has a Groq API key stored in OPENAI_API_KEY,
-# allow it to be used as GROQ_API_KEY as a fallback.
-if not os.getenv("GROQ_API_KEY") and os.getenv("OPENAI_API_KEY"):
-    os.environ["GROQ_API_KEY"] = os.getenv("OPENAI_API_KEY")
+# OpenAI API key is read directly from the OPENAI_API_KEY environment variable.
+if not os.getenv("OPENAI_API_KEY"):
+    st.warning("OPENAI_API_KEY is not set. The app will fail to generate responses until it is configured.")
 
 st.set_page_config(
     page_title="CAAS Fees Legislation Assistant",

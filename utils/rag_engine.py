@@ -1,7 +1,8 @@
+import os
 import re
 
-from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from utils.document_loader import load_vector_store
 from utils.security import SYSTEM_PROMPT, wrap_context_safely
@@ -75,7 +76,7 @@ def get_answer(question: str, k: int = 12):
 
     context = wrap_context_safely(chunks)
 
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=os.getenv("OPENAI_API_KEY"))
     chain = PROMPT | llm
     response = chain.invoke({"context": context, "question": question})
 

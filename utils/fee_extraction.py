@@ -1,10 +1,11 @@
 import json
+import os
 import re
 import time
 from pathlib import Path
 
 import pandas as pd
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 from utils.document_loader import load_all_documents
 
@@ -51,7 +52,7 @@ def extract_fees_from_documents(progress_callback=None):
     if not pages:
         return pd.DataFrame()
 
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=os.getenv("OPENAI_API_KEY"))
     rows = []
 
     for i, page in enumerate(pages):
