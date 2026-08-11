@@ -10,14 +10,17 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+QDRANT_IMPORT_ERROR = None
+
 try:
     from qdrant_client import QdrantClient
     from qdrant_client.http import models
     from langchain_qdrant import QdrantVectorStore
-except ImportError:  # pragma: no cover - optional dependency
+except ImportError as exc:  # pragma: no cover - optional dependency
     QdrantClient = None
     models = None
     QdrantVectorStore = None
+    QDRANT_IMPORT_ERROR = str(exc)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -117,7 +120,7 @@ def get_qdrant_status():
             "enabled": False,
             "configured": True,
             "collection_exists": False,
-            "error": "Qdrant dependencies are not installed.",
+            "error": f"Qdrant dependencies are not installed: {QDRANT_IMPORT_ERROR}",
         }
 
     try:

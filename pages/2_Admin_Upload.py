@@ -24,38 +24,25 @@ st.info(
 )
 
 status = get_persistence_status()
-if status["documents"]:
-    if status["has_index"]:
-        if status.get("using_qdrant"):
-            st.success(
-                "Qdrant Cloud is configured and the persisted collection is available. "
-                "New sessions will reuse this collection until you choose to rebuild."
-            )
-        else:
-            st.success(
-                "Saved documents and a local FAISS index were found. New sessions will reuse them until you choose to rebuild."
-            )
+if status.get("using_qdrant"):
+    st.success(
+        "Qdrant Cloud is configured, and the remote collection is available for retrieval. "
+        "This works even if local files are not currently present in Streamlit Cloud."
+    )
+    if status.get("qdrant_collection_exists"):
+        st.caption("Qdrant collection found: 'caas-documents'.")
     else:
-        if status.get("qdrant_configured"):
-            if status.get("qdrant_collection_exists"):
-                st.success(
-                    "Qdrant Cloud is configured and will be used once the collection is refreshed. "
-                    "Click Rebuild Index to populate the collection now."
-                )
-            else:
-                st.warning(
-                    "Qdrant Cloud is configured, but the collection does not exist yet. "
-                    "Click Rebuild Index to create it."
-                )
-            if status.get("qdrant_error"):
-                st.error(f"Qdrant error: {status['qdrant_error']}")
-        else:
-            st.warning(
-                "Documents are saved locally, but the vector index is not available yet. "
-                "The app will build it automatically when needed, or you can rebuild it now."
-            )
-else:
-    st.info("No documents have been uploaded yet. Upload files to keep them for future sessions.")
+        st.warning(
+            "Qdrant is configured but the collection has not been created yet. "
+            "Click Rebuild Index to create it from the uploaded documents."
+        )
+elif status.get("qdrant_configured"):
+    st.warning(
+        "Qdrant is configured, but the app cannot connect successfully. "
+        "Check your Qdrant credentials and network access."
+    )
+    if status.get("qdrant_error"):
+        st.error(f"Qdrant error: {status['qdrant_error']}")
 
 uploaded_files = st.file_uploader(
     "Upload documents",
@@ -75,14 +62,26 @@ st.divider()
 st.subheader("📚 Current Documents")
 docs = list_documents()
 if docs:
-    for d in docs:
+    for idx, d in enumerate(docs):
         col1, col2 = st.columns([4, 1])
         col1.write(d)
-        if col2.button("🗑️ Delete", key=f"del_{d}"):
+        if col2.button("🗑️ Delete", key=f"del_{idx}_{d}"):
             delete_document(d)
             st.rerun()
 else:
-    st.info("No documents uploaded yet.")
+    if status.get("using_qdrant"):
+        st.warning(
+            "No local documents have been uploaded in this Streamlit Cloud session. "
+            "Streamlit Cloud does not persist file uploads across app restarts, so uploaded files must be re-uploaded here "
+            "or the app must use your remote Qdrant collection instead."
+        )
+        if status.get("qdrant_collection_exists"):
+            st.success(
+                "Qdrant collection exists remotely, so the Chat Assistant may still answer questions from persisted vector data. "
+                "Try asking a question on the Chat Assistant page."
+            )
+    else:
+        st.info("No documents uploaded yet. Upload files to keep them for future sessions.")
 
 st.divider()
 if st.button("🔄 Rebuild Index", type="primary"):
