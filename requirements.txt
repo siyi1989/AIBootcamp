@@ -96,8 +96,6 @@ pycparser
 pydantic
 pydantic-settings
 pydantic_core
-qdrant-client
-langchain-qdrant
 pydeck
 Pygments
 pyparsing
@@ -106,6 +104,8 @@ python-dateutil
 python-dotenv
 python-multipart
 PyYAML
+qdrant-client
+langchain-qdrant
 referencing
 regex
 requests

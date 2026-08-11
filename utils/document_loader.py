@@ -11,6 +11,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 QDRANT_IMPORT_ERROR = None
+QDRANT_STORE_ERROR = None
 
 try:
     from qdrant_client import QdrantClient
@@ -112,6 +113,7 @@ def get_qdrant_status():
             "enabled": False,
             "configured": False,
             "collection_exists": False,
+            "store_usable": False,
             "error": "QDRANT_URL is not configured.",
         }
 
@@ -120,6 +122,7 @@ def get_qdrant_status():
             "enabled": False,
             "configured": True,
             "collection_exists": False,
+            "store_usable": False,
             "error": f"Qdrant dependencies are not installed: {QDRANT_IMPORT_ERROR}",
         }
 
@@ -130,17 +133,33 @@ def get_qdrant_status():
 
         collections = client.get_collections().collections
         collection_exists = any(collection.name == cfg["collection_name"] for collection in collections)
+        store_usable = False
+        store_error = None
+        if collection_exists:
+            try:
+                embeddings = get_embeddings()
+                QdrantVectorStore(
+                    client=client,
+                    collection_name=cfg["collection_name"],
+                    embeddings=embeddings,
+                )
+                store_usable = True
+            except Exception as err:
+                store_error = str(err)
+
         return {
             "enabled": True,
             "configured": True,
             "collection_exists": collection_exists,
-            "error": None,
+            "store_usable": store_usable,
+            "error": store_error,
         }
     except Exception as exc:
         return {
             "enabled": False,
             "configured": True,
             "collection_exists": False,
+            "store_usable": False,
             "error": str(exc),
         }
 
@@ -154,6 +173,7 @@ def get_persistence_status():
         "using_qdrant": qdrant_status["enabled"],
         "qdrant_configured": qdrant_status["configured"],
         "qdrant_collection_exists": qdrant_status["collection_exists"],
+        "qdrant_store_usable": qdrant_status["store_usable"],
         "qdrant_error": qdrant_status["error"],
     }
 
@@ -333,8 +353,10 @@ def load_vector_store():
                 collection_name=cfg["collection_name"],
                 embeddings=embeddings,
             )
+            QDRANT_STORE_ERROR = None
             return QdrantStoreAdapter(vector_store)
-        except Exception:
+        except Exception as exc:
+            QDRANT_STORE_ERROR = str(exc)
             return None
 
     if not has_vector_store():
