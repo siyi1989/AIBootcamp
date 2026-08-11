@@ -29,6 +29,10 @@ if status.get("using_qdrant"):
         "Qdrant Cloud is configured, and the remote collection is available for retrieval. "
         "This works even if local files are not currently present in Streamlit Cloud."
     )
+    st.markdown(
+        f"**Debug:** collection_exists={status.get('qdrant_collection_exists')} "
+        f"| store_usable={status.get('qdrant_store_usable')}"
+    )
     if status.get("qdrant_collection_exists"):
         st.caption("Qdrant collection found: 'caas-documents'.")
     else:

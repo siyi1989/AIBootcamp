@@ -27,10 +27,10 @@ question = st.chat_input(
 if question:
     clean_question = sanitize_user_input(question)
     if clean_question != question:
-        answer, sources, confidence = clean_question, [], "low"
+        answer, sources, confidence, metadata = clean_question, [], "low", {}
     else:
         with st.spinner("Searching legislation..."):
-            answer, sources, confidence = get_answer(clean_question)
+            answer, sources, confidence, metadata = get_answer(clean_question)
 
     st.session_state.chat_history.append(
         {
@@ -38,6 +38,7 @@ if question:
             "answer": answer,
             "sources": sources,
             "confidence": confidence,
+            "meta": metadata,
             "voted": None,
         }
     )
@@ -49,6 +50,11 @@ for i, entry in enumerate(st.session_state.chat_history):
     with st.chat_message("assistant"):
         st.caption(CONFIDENCE_BADGES.get(entry.get("confidence"), ""))
         st.write(entry["answer"])
+        if entry.get("meta"):
+            meta = entry["meta"]
+            st.caption(
+                f"⏱ {meta.get('timestamp', '-')}, backend={meta.get('backend', '-')}, retrievals={meta.get('retrieval_count', 0)}"
+            )
         if entry["sources"]:
             st.caption("Sources: " + ", ".join(entry["sources"]))
 
