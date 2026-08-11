@@ -25,21 +25,24 @@ st.info(
 
 status = get_persistence_status()
 if status.get("using_qdrant"):
-    st.success(
-        "Qdrant Cloud is configured, and the remote collection is available for retrieval. "
-        "This works even if local files are not currently present in Streamlit Cloud."
-    )
+    if status.get("qdrant_store_usable"):
+        st.success(
+            "Qdrant Cloud is configured, and the remote collection is available for retrieval. "
+            "This works even if local files are not currently present in Streamlit Cloud."
+        )
+        if status.get("qdrant_collection_exists"):
+            st.caption("Qdrant collection found: 'caas-documents'.")
+    else:
+        st.warning(
+            "Qdrant Cloud is configured, but the remote vector store could not be initialized. "
+            "The collection exists, but the app cannot use it in the current runtime."
+        )
+        if status.get("qdrant_error"):
+            st.error(f"Qdrant store error: {status['qdrant_error']}")
     st.markdown(
         f"**Debug:** collection_exists={status.get('qdrant_collection_exists')} "
         f"| store_usable={status.get('qdrant_store_usable')}"
     )
-    if status.get("qdrant_collection_exists"):
-        st.caption("Qdrant collection found: 'caas-documents'.")
-    else:
-        st.warning(
-            "Qdrant is configured but the collection has not been created yet. "
-            "Click Rebuild Index to create it from the uploaded documents."
-        )
 elif status.get("qdrant_configured"):
     st.warning(
         "Qdrant is configured, but the app cannot connect successfully. "
