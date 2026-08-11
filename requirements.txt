@@ -96,6 +96,8 @@ pycparser
 pydantic
 pydantic-settings
 pydantic_core
+qdrant-client
+langchain-qdrant
 pydeck
 Pygments
 pyparsing

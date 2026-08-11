@@ -6,6 +6,7 @@ from utils.document_loader import (
     save_uploaded_file,
     delete_document,
     build_vector_store,
+    get_persistence_status,
 )
 
 
@@ -17,6 +18,24 @@ st.caption(
     "Only Admins can access this page."
 )
 
+st.info(
+    "If Qdrant Cloud is configured, uploaded chunks will be stored there for persistence. "
+    "Otherwise the app will keep using the local FAISS index."
+)
+
+status = get_persistence_status()
+if status["documents"]:
+    if status["has_index"]:
+        st.success(
+            "Saved documents and a persisted vector index were found. New sessions will reuse them until you choose to rebuild."
+        )
+    else:
+        st.warning(
+            "Documents are saved locally, but the vector index is not available yet. The app will build it automatically when needed, or you can rebuild it now."
+        )
+else:
+    st.info("No documents have been uploaded yet. Upload files to keep them for future sessions.")
+
 uploaded_files = st.file_uploader(
     "Upload documents",
     type=["pdf", "docx", "txt"],
@@ -27,8 +46,8 @@ if uploaded_files:
     for f in uploaded_files:
         save_uploaded_file(f)
     st.success(
-        f"Saved {len(uploaded_files)} file(s). Click 'Rebuild Index' below "
-        "to make them searchable."
+        f"Saved {len(uploaded_files)} file(s). They will remain on disk for future sessions. "
+        "Existing vectors stay in place until you click 'Rebuild Index' to refresh them."
     )
 
 st.divider()
