@@ -101,12 +101,57 @@ def clear_vector_store():
     return True
 
 
+def get_qdrant_status():
+    cfg = get_qdrant_config()
+
+    if not cfg["url"]:
+        return {
+            "enabled": False,
+            "configured": False,
+            "collection_exists": False,
+            "error": "QDRANT_URL is not configured.",
+        }
+
+    if QdrantClient is None or QdrantVectorStore is None or models is None:
+        return {
+            "enabled": False,
+            "configured": True,
+            "collection_exists": False,
+            "error": "Qdrant dependencies are not installed.",
+        }
+
+    try:
+        client = get_qdrant_client()
+        if client is None:
+            raise RuntimeError("Failed to create Qdrant client.")
+
+        collections = client.get_collections().collections
+        collection_exists = any(collection.name == cfg["collection_name"] for collection in collections)
+        return {
+            "enabled": True,
+            "configured": True,
+            "collection_exists": collection_exists,
+            "error": None,
+        }
+    except Exception as exc:
+        return {
+            "enabled": False,
+            "configured": True,
+            "collection_exists": False,
+            "error": str(exc),
+        }
+
+
 def get_persistence_status():
     ensure_data_dirs()
+    qdrant_status = get_qdrant_status()
     return {
         "documents": list_documents(),
         "has_index": has_vector_store(),
-        "using_qdrant": use_qdrant(),
+        "using_qdrant": qdrant_status["enabled"],
+        "qdrant_configured": qdrant_status["configured"],
+        "qdrant_collection_exists": qdrant_status["collection_exists"],
+        "qdrant_error": qdrant_status["error"],
     }
 
 

@@ -36,11 +36,19 @@ if status["documents"]:
                 "Saved documents and a local FAISS index were found. New sessions will reuse them until you choose to rebuild."
             )
     else:
-        if status.get("using_qdrant"):
-            st.warning(
-                "Qdrant Cloud is configured, but the remote collection could not be detected yet. "
-                "Rebuild the index to create or refresh the collection."
-            )
+        if status.get("qdrant_configured"):
+            if status.get("qdrant_collection_exists"):
+                st.success(
+                    "Qdrant Cloud is configured and will be used once the collection is refreshed. "
+                    "Click Rebuild Index to populate the collection now."
+                )
+            else:
+                st.warning(
+                    "Qdrant Cloud is configured, but the collection does not exist yet. "
+                    "Click Rebuild Index to create it."
+                )
+            if status.get("qdrant_error"):
+                st.error(f"Qdrant error: {status['qdrant_error']}")
         else:
             st.warning(
                 "Documents are saved locally, but the vector index is not available yet. "
