@@ -66,11 +66,30 @@ def has_documents():
 
 def has_vector_store():
     ensure_data_dirs()
+    if use_qdrant():
+        try:
+            client = get_qdrant_client()
+            cfg = get_qdrant_config()
+            if client is None:
+                return False
+            collections = client.get_collections().collections
+            return any(collection.name == cfg["collection_name"] for collection in collections)
+        except Exception:
+            return False
     return any((INDEX_DIR / name).exists() for name in ["index.faiss", "index.pkl"])
 
 
 def clear_vector_store():
     ensure_data_dirs()
+    if use_qdrant():
+        try:
+            client = get_qdrant_client()
+            cfg = get_qdrant_config()
+            if client is not None:
+                client.delete_collection(collection_name=cfg["collection_name"])
+        except Exception:
+            pass
+
     if not INDEX_DIR.exists():
         return False
 
@@ -87,6 +106,7 @@ def get_persistence_status():
     return {
         "documents": list_documents(),
         "has_index": has_vector_store(),
+        "using_qdrant": use_qdrant(),
     }
 
 
@@ -203,7 +223,7 @@ def build_vector_store(progress_callback=None):
         vector_store = QdrantVectorStore(
             client=client,
             collection_name=cfg["collection_name"],
-            embedding=embeddings,
+            embeddings=embeddings,
         )
         total_batches = (len(chunks) + BATCH_SIZE - 1) // BATCH_SIZE
 

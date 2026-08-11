@@ -26,13 +26,26 @@ st.info(
 status = get_persistence_status()
 if status["documents"]:
     if status["has_index"]:
-        st.success(
-            "Saved documents and a persisted vector index were found. New sessions will reuse them until you choose to rebuild."
-        )
+        if status.get("using_qdrant"):
+            st.success(
+                "Qdrant Cloud is configured and the persisted collection is available. "
+                "New sessions will reuse this collection until you choose to rebuild."
+            )
+        else:
+            st.success(
+                "Saved documents and a local FAISS index were found. New sessions will reuse them until you choose to rebuild."
+            )
     else:
-        st.warning(
-            "Documents are saved locally, but the vector index is not available yet. The app will build it automatically when needed, or you can rebuild it now."
-        )
+        if status.get("using_qdrant"):
+            st.warning(
+                "Qdrant Cloud is configured, but the remote collection could not be detected yet. "
+                "Rebuild the index to create or refresh the collection."
+            )
+        else:
+            st.warning(
+                "Documents are saved locally, but the vector index is not available yet. "
+                "The app will build it automatically when needed, or you can rebuild it now."
+            )
 else:
     st.info("No documents have been uploaded yet. Upload files to keep them for future sessions.")
 
