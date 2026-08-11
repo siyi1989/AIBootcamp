@@ -203,7 +203,7 @@ def build_vector_store(progress_callback=None):
         vector_store = QdrantVectorStore(
             client=client,
             collection_name=cfg["collection_name"],
-            embeddings=embeddings,
+            embedding=embeddings,
         )
         total_batches = (len(chunks) + BATCH_SIZE - 1) // BATCH_SIZE
 
