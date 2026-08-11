@@ -141,7 +141,7 @@ def get_qdrant_status():
                 QdrantVectorStore(
                     client=client,
                     collection_name=cfg["collection_name"],
-                    embeddings=embeddings,
+                    embedding=embeddings,
                 )
                 store_usable = True
             except Exception as err:
@@ -351,7 +351,7 @@ def load_vector_store():
             vector_store = QdrantVectorStore(
                 client=client,
                 collection_name=cfg["collection_name"],
-                embeddings=embeddings,
+                embedding=embeddings,
             )
             QDRANT_STORE_ERROR = None
             return QdrantStoreAdapter(vector_store)
