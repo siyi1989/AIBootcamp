@@ -9,16 +9,16 @@ st.markdown(
     """
 ### Project Scope
 The **CAAS Fees Legislation Assistant** is a proof-of-concept Retrieval-Augmented
-Generation (RAG) tool built for finance officers within the Civil Aviation
-Authority of Singapore (CAAS). It helps officers quickly understand and
+Generation (RAG) tool built for both the public and Civil Aviation
+Authority of Singapore (CAAS) officers. It helps user quickly identify, understand and
 locate information on the various fees CAAS collects (e.g. licensing fees,
 certification fees, airport charges) as set out in relevant legislation and
 official notices.
 
 ### Objectives
-- Give finance officers a fast, conversational way to search fee-related
+- Provides the public and finance officers a fast, conversational way to search fee-related
   legislation instead of manually reading long PDF documents.
-- Reduce the time other officers spend looking up which legislation governs
+- Reduce the time spent by users looking up which legislation governs
   a specific fee.
 - Provide a controlled way (Admin-only) to keep the underlying document set
   current as legislation is updated.
