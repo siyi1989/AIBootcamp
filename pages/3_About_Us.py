@@ -16,7 +16,7 @@ certification fees, airport charges) as set out in relevant legislation and
 official notices.
 
 ### Objectives
-- Provides the public and finance officers a fast, conversational way to search fee-related
+- Provides the public and CAAS officers a fast, conversational way to search fee-related
   legislation instead of manually reading long PDF documents.
 - Reduce the time spent by users looking up which legislation governs
   a specific fee.
