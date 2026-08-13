@@ -4,7 +4,7 @@ from utils.security import sanitize_user_input
 from utils.rag_engine import get_answer
 from utils.feedback import save_feedback
 
-st.title("💬 Chat Assistant")
+st.title("💬 CAAS Fees Legislation Chat Assistant")
 st.caption(
     "Ask a question about CAAS fees legislation. Answers are grounded in "
     "the indexed documents and include source citations."
